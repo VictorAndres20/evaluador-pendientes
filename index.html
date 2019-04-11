@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<title>Evaluar</title>
+	<!-- CSS Bootstrap -->
+	<link rel="stylesheet" href="dependencies/bootstrap/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="dependencies/bootstrap/css/mdb.min.css" />
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<style>
+		body{
+			/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#173777+0,1d4d9b+31,207cca+63,7db9e8+100 */
+			background: #173777; /* Old browsers */
+			background: -moz-linear-gradient(top, #173777 0%, #1d4d9b 31%, #207cca 63%, #7db9e8 100%); /* FF3.6-15 */
+			background: -webkit-linear-gradient(top, #173777 0%,#1d4d9b 31%,#207cca 63%,#7db9e8 100%); /* Chrome10-25,Safari5.1-6 */
+			background: linear-gradient(to bottom, #173777 0%,#1d4d9b 31%,#207cca 63%,#7db9e8 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#173777', endColorstr='#7db9e8',GradientType=0 ); /* IE6-9 */	
+			padding:10px;
+		}	
+	</style>
+  </head>
+  <body>
+    <div class="container">
+		<div class="row">
+			<div class="col-sm-8">
+				<div id="chart_div" style="width: 100%; height: 500px;"></div>
+		   </div>
+			<div class="col-sm-4">
+				<div class="card">
+				  	<div class="card-body">
+						<h4 style="margin-top:10px;">Pendientes encontradas</h4>
+						<table id="table1" border="solid" style="font-size:12px">				  
+					</div>
+				</div>
+				</table>
+		   </div>
+		</div>
+	 </div>
+	<script type="text/javascript">
+
+		/* Función para evaluar pendiente*/
+		function pendiente(x1,y1,x2,y2)
+		{
+			return (y2-y1)/(x2-x1);
+		}
+		/******************/
+
+		/* Matriz*/
+		var matriz=[];
+		matriz.push([1,0]);
+		matriz.push([2,5]);
+		matriz.push([3,0]);
+		matriz.push([4,5]);
+		matriz.push([5,0]);
+		matriz.push([6,7]);
+		matriz.push([7,0]);
+		matriz.push([8,3]);
+		matriz.push([9,0]);
+		matriz.push([10,6]);
+		matriz.push([11,4]);
+		matriz.push([12,3]);
+		matriz.push([13,0]);
+		matriz.push([14,0]);
+		matriz.push([15,5]);
+		matriz.push([16,0]);
+		matriz.push([17,5]);
+		matriz.push([18,0]);
+		matriz.push([19,7]);
+		matriz.push([20,5]);
+		matriz.push([21,0]);
+		matriz.push([22,3]);
+		matriz.push([23,0]);
+		matriz.push([24,6]);
+		matriz.push([25,4]);
+		matriz.push([26,3]);
+		/********************/
+
+		/* Gráfica gracias a la librería de Google Charts*/
+  		google.charts.load('current', {packages: ['corechart', 'line']});
+		google.charts.setOnLoadCallback(drawChart);
+		
+      function drawChart() {
+         var data = new google.visualization.DataTable();
+		   data.addColumn('number', 'X');
+		   data.addColumn('number', 'Y');
+
+		   data.addRows(matriz);
+
+		   var options = {
+				title:'Gráfica',
+		     hAxis: {
+		       title: 'Eje x'
+		     },
+		     vAxis: {
+		       title: 'Eje Y'
+		     }
+		   };
+
+		   var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+
+		   chart.draw(data, options);
+      }
+		/********************/
+
+		/*
+		 * Evaluación de pendientes		
+		*/	
+		var table=document.getElementById("table1");
+		var content="";
+		var x1=matriz[0][0];
+		var y1=matriz[0][1];
+		/* Dirección de la evaluación de cambio de sentido, si es 1(Hacia arriba), si es -1(Hacia abajo)*/
+		var dir=1;
+		var p1=0;
+		var p=0;
+		
+		/* Recorrer matriz*/ 
+		for(var i=1;i<matriz.length;i++)
+		{
+			var x2=matriz[i-1][0];
+			var y2=matriz[i-1][1];
+			var dif="";
+			if(dir>0)
+			{
+				/* Dirección de la evaluación de cambio de sentido hacia arriba*/
+				if(y2>matriz[i][1])
+				{
+					p=pendiente(x1,y1,x2,y2);
+					p1=p;
+					content=content+"<tr><td>Pendiente en intervalo ("+x1+" , "+y1+")("+x2+" , "+y2+") -> "+p+"</td></tr>";
+					dir=-1;
+					x1=x2;
+					y1=y2;
+				}
+			}
+			else if(dir<0)
+			{
+				/* Dirección de la evaluación de cambio de sentido hacia abajo*/
+				if(y2<matriz[i][1])
+				{
+					p=pendiente(x1,y1,x2,y2);
+					if(p1!=(p*-1))
+					{
+						dif=" Pendiente diferente a la anterior!!!!";
+					}
+					content=content+"<tr><td>Pendiente en intervalo ("+x1+" , "+y1+")("+x2+" , "+y2+") -> "+p+dif+"</td></tr>";
+					dir=1;
+					x1=x2;
+					y1=y2;
+				}
+			}			
+		}
+		/*último punto para evaluar la pendiente*/
+		x2=matriz[matriz.length-1][0];
+		y2=matriz[matriz.length-1][1];
+		p=pendiente(x1,y1,x2,y2);
+		dif="";
+		if(p1!=(p*-1))
+		{
+			dif=" Pendiente diferente a la anterior!!!!";
+		}
+		content=content+"<tr><td>Pendiente en intervalo ("+x1+" , "+y1+")("+x2+" , "+y2+") -> "+p+dif+"</td></tr>";
+		table.innerHTML=content;
+    </script>
+  </body>
+</html>
